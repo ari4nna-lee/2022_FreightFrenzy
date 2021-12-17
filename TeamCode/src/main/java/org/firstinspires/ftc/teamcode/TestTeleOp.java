@@ -6,33 +6,44 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "MecanumOpMode (Studio)", group = "")
-public class MecanumOp extends LinearOpMode {
+@TeleOp(name = "Test Mode", group = "")
+public class TestTeleOp extends LinearOpMode {
 
     private DcMotor rightFront;
     private DcMotor rightBack;
     private DcMotor leftFront;
     private DcMotor leftBack;
 
-    /**
-     * This function is executed when this Op Mode is selected from the Driver Station.
-     */
+    private DcMotor duckWheelMotor;
+    private DcMotor armMotor;
+    private DcMotor intakeMotor;
+
+    private Servo armServo;
+
     @Override
     public void runOpMode() {
-
         rightFront = hardwareMap.dcMotor.get("rightFront");
         rightBack = hardwareMap.dcMotor.get("rightBack");
         leftFront = hardwareMap.dcMotor.get("leftFront");
         leftBack = hardwareMap.dcMotor.get("leftBack");
+        duckWheelMotor = hardwareMap.dcMotor.get("duckWheelMotor");
+        armMotor = hardwareMap.dcMotor.get("armMotor");
+        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+        armServo = hardwareMap.servo.get("armServo");
 
-        // Put initialization blocks here.
-        waitForStart();
         if (opModeIsActive()) {
-            rightFront.setDirection(DcMotorSimple.Direction.REVERSE); // Actual robot
-            rightBack.setDirection(DcMotorSimple.Direction.REVERSE); // Program bot
-            // Put run blocks here.
+            rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
             while (opModeIsActive()) {
+                duckWheelMotor.setPower(gamepad2.right_trigger);
+                armMotor.setPower(gamepad2.right_stick_y);
+                intakeMotor.setPower(gamepad2.left_stick_y);
+
+                if (gamepad1.a) {
+                    armServo.setPosition(0);
+                } else if (gamepad1.b) {
+                    armServo.setPosition(1);
+                }
 
                 double r = Math.hypot(gamepad1.left_stick_x * -1, gamepad1.left_stick_y);
                 double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x * -1) - Math.PI / 4;
@@ -55,10 +66,10 @@ public class MecanumOp extends LinearOpMode {
                 telemetry.addData("rFront Position", rightFront.getCurrentPosition());
                 telemetry.addData("lBack Position", leftBack.getCurrentPosition());
 
-
-
                 telemetry.update();
             }
         }
     }
+
+
 }
