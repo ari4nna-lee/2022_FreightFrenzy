@@ -29,7 +29,7 @@ public class MecanumOp extends LinearOpMode {
         waitForStart();
         if (opModeIsActive()) {
             rightFront.setDirection(DcMotorSimple.Direction.REVERSE); // Actual robot
-            rightBack.setDirection(DcMotorSimple.Direction.REVERSE); // Program bot
+            //  rightBack.setDirection(DcMotorSimple.Direction.REVERSE); // Program bot
             // Put run blocks here.
 
             while (opModeIsActive()) {
