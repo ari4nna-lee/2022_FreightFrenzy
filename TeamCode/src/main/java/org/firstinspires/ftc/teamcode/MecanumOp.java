@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "MecanumOpMode (Studio)", group = "")
+@TeleOp(name = "MECANUM DRIVE", group = "")
 public class MecanumOp extends LinearOpMode {
 
     private DcMotor rightFront;
@@ -29,7 +29,7 @@ public class MecanumOp extends LinearOpMode {
         waitForStart();
         if (opModeIsActive()) {
             rightFront.setDirection(DcMotorSimple.Direction.REVERSE); // Actual robot
-            //  rightBack.setDirection(DcMotorSimple.Direction.REVERSE); // Program bot
+            rightBack.setDirection(DcMotorSimple.Direction.REVERSE); // Program bot
             // Put run blocks here.
 
             while (opModeIsActive()) {
@@ -46,18 +46,33 @@ public class MecanumOp extends LinearOpMode {
                 rightFront.setPower(rFront);
                 leftBack.setPower(lRear);
                 rightBack.setPower(rRear);
-                telemetry.addData("leftFront", lFront);
-                telemetry.addData("rightFront", rFront);
-                telemetry.addData("leftRear", lRear);
-                telemetry.addData("rightRear", rRear);
 
-                telemetry.addData("lFront Position", leftFront.getCurrentPosition());
-                telemetry.addData("rFront Position", rightFront.getCurrentPosition());
-                telemetry.addData("lBack Position", leftBack.getCurrentPosition());
+                double strafe_left_power = gamepad1.left_trigger;
+                double strafe_right_power = gamepad1.right_trigger;
+                if (gamepad1.left_trigger > 0) {
+                    leftFront.setPower(strafe_left_power);
+                    rightFront.setPower(-strafe_left_power);
+                    leftBack.setPower(-strafe_left_power);
+                    rightBack.setPower(strafe_left_power);
+                }
+                if (gamepad1.right_trigger > 0) {
+                    leftFront.setPower(-strafe_right_power);
+                    rightFront.setPower(strafe_right_power);
+                    leftBack.setPower(strafe_right_power);
+                    rightBack.setPower(-strafe_right_power);
+
+                    telemetry.addData("leftFront", lFront);
+                    telemetry.addData("rightFront", rFront);
+                    telemetry.addData("leftRear", lRear);
+                    telemetry.addData("rightRear", rRear);
+
+                    telemetry.addData("lFront Position", leftFront.getCurrentPosition());
+                    telemetry.addData("rFront Position", rightFront.getCurrentPosition());
+                    telemetry.addData("lBack Position", leftBack.getCurrentPosition());
 
 
-
-                telemetry.update();
+                    telemetry.update();
+                }
             }
         }
     }

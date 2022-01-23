@@ -9,8 +9,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class FreightFrenzyTeleOp extends LinearOpMode {
 
     private DcMotor leftFront, rightFront, leftBack, rightBack, intakeMotor, pivotMotor, duckWheel;
-    private final double DUCK_WHEEL_SPEED = 0.5;
+    private final double DUCK_WHEEL_SPEED = 0.8;
 
+    @Override
     public void runOpMode() {
         initHardwareMap();
 
@@ -19,17 +20,18 @@ public class FreightFrenzyTeleOp extends LinearOpMode {
             while (opModeIsActive() || !isStopRequested()) {
                 mecanumDrive();
 
-                pivotMotor.setPower(gamepad2.right_stick_y);
+                pivotMotor.setPower(-gamepad2.right_stick_y);
 
                 if (gamepad2.right_trigger > 0) {
-                    intakeMotor.setPower(gamepad2.right_trigger);
+                    intakeMotor.setPower(-gamepad2.right_trigger);
                 } else if (gamepad2.left_trigger > 0) {
-                    intakeMotor.setPower(-gamepad2.left_trigger);
+                    intakeMotor.setPower(gamepad2.left_trigger);
                 }
                 if (gamepad1.x) {
                     while (gamepad1.x || !isStopRequested()) {
                         duckWheel.setPower(DUCK_WHEEL_SPEED);
                     }
+
                     duckWheel.setPower(0);
                 }
 
@@ -85,6 +87,32 @@ public class FreightFrenzyTeleOp extends LinearOpMode {
 
         double strafe_left_power = gamepad1.left_trigger;
         double strafe_right_power = gamepad1.right_trigger;
+
+        if (gamepad1.left_trigger > 0) {
+            leftFront.setPower(strafe_left_power);
+            rightFront.setPower(-strafe_left_power);
+            leftBack.setPower(-strafe_left_power);
+            rightBack.setPower(strafe_left_power);
+        }
+        if (gamepad1.right_trigger > 0) {
+            leftFront.setPower(-strafe_right_power);
+            rightFront.setPower(strafe_right_power);
+            leftBack.setPower(strafe_right_power);
+            rightBack.setPower(-strafe_right_power);
+        }
+    }
+    public void mecanumDriveTwo() {
+        double motor_power = gamepad1.left_stick_y;
+        if (gamepad1.left_stick_y != 0) {
+            leftFront.setPower(motor_power);
+            rightFront.setPower(motor_power);
+            leftBack.setPower(motor_power);
+            rightBack.setPower(motor_power);
+        }
+
+        double strafe_left_power = gamepad1.left_trigger;
+        double strafe_right_power = gamepad1.right_trigger;
+
         if (gamepad1.left_trigger > 0) {
             leftFront.setPower(-strafe_left_power);
             rightFront.setPower(strafe_left_power);
@@ -97,6 +125,22 @@ public class FreightFrenzyTeleOp extends LinearOpMode {
             leftBack.setPower(-strafe_right_power);
             rightBack.setPower(strafe_right_power);
         }
+
+        double turn_power = gamepad2.right_stick_x;
+
+        if (gamepad2.right_stick_x > 0) {
+            leftFront.setPower(turn_power);
+            rightFront.setPower(-turn_power);
+            leftBack.setPower(turn_power);
+            rightBack.setPower(-turn_power);
+        } else if (gamepad1.right_stick_x < 0) {
+            leftFront.setPower(-turn_power);
+            rightFront.setPower(turn_power);
+            leftBack.setPower(-turn_power);
+            rightBack.setPower(turn_power);
+            }
+
+
     }
 }
 
