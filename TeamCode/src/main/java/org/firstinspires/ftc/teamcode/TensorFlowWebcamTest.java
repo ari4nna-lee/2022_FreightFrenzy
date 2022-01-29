@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -51,7 +52,7 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@TeleOp(name = "Concept: TensorFlow Object Detection Webcam", group = "Concept")
+@TeleOp(name = "Testing TSE Detection", group = "Concept")
 public class TensorFlowWebcamTest extends LinearOpMode {
   /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
    * the following 4 detectable objects
@@ -64,12 +65,13 @@ public class TensorFlowWebcamTest extends LinearOpMode {
    *  FreightFrenzy_BC.tflite  0: Ball,  1: Cube
    *  FreightFrenzy_DM.tflite  0: Duck,  1: Marker
    */
-    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+
+    private static final double SERVO_START_POS = 0.45;
+    private static final double SERVO_END_POS = 0.525;
+
+    private static final String TFOD_MODEL_ASSET = "/sdcard/FIRST/tflitemodels/RedCupTSE.tflite";
     private static final String[] LABELS = {
-      "Ball",
-      "Cube",
-      "Duck",
-      "Marker"
+      "Shipping element", "Shippi", "Shipping elem"
     };
 
     /*
@@ -98,6 +100,7 @@ public class TensorFlowWebcamTest extends LinearOpMode {
      * Detection engine.
      */
     private TFObjectDetector tfod;
+    private Servo cameraServo;
 
     @Override
     public void runOpMode() {
@@ -105,6 +108,7 @@ public class TensorFlowWebcamTest extends LinearOpMode {
         // first.
         initVuforia();
         initTfod();
+        cameraServo = hardwareMap.servo.get("cameraServo");
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
@@ -119,10 +123,11 @@ public class TensorFlowWebcamTest extends LinearOpMode {
             // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
-            tfod.setZoom(2.5, 16.0/9.0);
+            tfod.setZoom(2, 16.0/9.0);
         }
 
         /** Wait for the game to begin */
+        cameraServo.setPosition(SERVO_END_POS);
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
         waitForStart();
@@ -181,6 +186,7 @@ public class TensorFlowWebcamTest extends LinearOpMode {
        tfodParameters.isModelTensorFlow2 = true;
        tfodParameters.inputSize = 320;
        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-       tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
+       //tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
+        tfod.loadModelFromFile(TFOD_MODEL_ASSET, LABELS);
     }
 }
