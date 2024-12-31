@@ -33,6 +33,10 @@ public class MecanumOp extends LinearOpMode {
             // Put run blocks here.
 
             while (opModeIsActive()) {
+                telemetry.addData("lFront Position", leftFront.getCurrentPosition());
+                telemetry.addData("rFront Position", rightFront.getCurrentPosition());
+                telemetry.addData("lBack Position", leftBack.getCurrentPosition());
+                telemetry.update();
 
                 double r = Math.hypot(gamepad1.left_stick_x * -1, gamepad1.left_stick_y);
                 double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x * -1) - Math.PI / 4;
@@ -65,10 +69,6 @@ public class MecanumOp extends LinearOpMode {
                     telemetry.addData("rightFront", rFront);
                     telemetry.addData("leftRear", lRear);
                     telemetry.addData("rightRear", rRear);
-
-                    telemetry.addData("lFront Position", leftFront.getCurrentPosition());
-                    telemetry.addData("rFront Position", rightFront.getCurrentPosition());
-                    telemetry.addData("lBack Position", leftBack.getCurrentPosition());
 
 
                     telemetry.update();

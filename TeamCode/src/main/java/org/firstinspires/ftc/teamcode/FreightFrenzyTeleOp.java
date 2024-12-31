@@ -4,12 +4,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name = "Tele Op", group = "")
 public class FreightFrenzyTeleOp extends LinearOpMode {
 
     private DcMotor leftFront, rightFront, leftBack, rightBack, intakeMotor, pivotMotor, duckWheel;
     private final double DUCK_WHEEL_SPEED = 0.8;
+    private final double ARM_SPEED = 0.8;
 
     @Override
     public void runOpMode() {
@@ -18,24 +21,26 @@ public class FreightFrenzyTeleOp extends LinearOpMode {
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive() || !isStopRequested()) {
+                double intakePower = (Range.clip(gamepad2.left_stick_y, -0.6, 0.6));
+
                 mecanumDrive();
 
-                pivotMotor.setPower(-gamepad2.right_stick_y);
-
-                if (gamepad2.right_trigger > 0) {
-                    intakeMotor.setPower(-gamepad2.right_trigger);
-                } else if (gamepad2.left_trigger > 0) {
-                    intakeMotor.setPower(gamepad2.left_trigger);
+                pivotMotor.setPower(-gamepad2.right_stick_y * ARM_SPEED);
+                intakeMotor.setPower(intakePower);
+                if (gamepad1.a) {
+                    duckWheel.setPower(-DUCK_WHEEL_SPEED);
+                } else {
+                    duckWheel.setPower(0);
                 }
-                if (gamepad1.x) {
-                    while (gamepad1.x || !isStopRequested()) {
-                        duckWheel.setPower(DUCK_WHEEL_SPEED);
-                    }
 
+                if (gamepad1.b) {
+                    duckWheel.setPower(DUCK_WHEEL_SPEED);
+                } else {
                     duckWheel.setPower(0);
                 }
 
                 telemetry.addData("Position of the arm", pivotMotor.getCurrentPosition());
+                telemetry.addData("Intake power", intakeMotor.getPower());
                 telemetry.update();
 
             }
@@ -53,6 +58,7 @@ public class FreightFrenzyTeleOp extends LinearOpMode {
 
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        duckWheel.setDirection(DcMotorSimple.Direction.REVERSE);
 
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

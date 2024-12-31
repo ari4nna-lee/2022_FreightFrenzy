@@ -21,9 +21,7 @@ public class MeepMeepTesting {
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(-40, -62, Math.toRadians(180)))
                                 .strafeRight(25)
-                                .lineToSplineHeading(new Pose2d(-23.6, -38.6, Math.toRadians(225)))
-                                .lineToSplineHeading(new Pose2d(-60, -60, Math.toRadians(180)))
-                                .strafeRight(24)
+                                .turn(Math.toRadians(-135))
                                 .build()
                 );
 

@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.teamcode.drive.advanced.PoseStorage;
 
 import java.util.List;
 
+@Disabled
 @Autonomous(name = "RED Auto", group = "Autonomous Modes")
 public class RedAutonomous extends LinearOpMode {
 
@@ -41,12 +43,6 @@ public class RedAutonomous extends LinearOpMode {
 
     private TFObjectDetector tfod;
 
-    enum State {
-        FIRST_LEVEL,        // Runs if cargo needs to be placed on the first level
-        SECOND_LEVEL,       // Runs if cargo needs to be placed on the second level
-        THIRD_LEVEL,        // Runs if cargo needs to be placed on the third level
-    }
-
     Pose2d startPose = new Pose2d(-40, -62, Math.toRadians(180));
 
     @Override
@@ -57,24 +53,22 @@ public class RedAutonomous extends LinearOpMode {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         drive.setPoseEstimate(startPose);
-
-        Trajectory move_away_from_wall = drive.trajectoryBuilder(startPose)
-                .strafeTo(new Vector2d(-28, -52))
+        Trajectory move_away = drive.trajectoryBuilder(startPose)
+                .strafeTo(new Vector2d(-13, -52))
                 .build();
 
-        Trajectory turn_to_position = drive.trajectoryBuilder(move_away_from_wall.end())
-                .lineToSplineHeading(new Pose2d(-17, -31, Math.toRadians(35)))
+        Trajectory first_level = drive.trajectoryBuilder(move_away.end())
+                .lineToSplineHeading(new Pose2d(-6, -37, Math.toRadians(90)))
                 .build();
 
-        Trajectory return_to_position = drive.trajectoryBuilder(turn_to_position.end())
+        Trajectory secondthird_level = drive.trajectoryBuilder(move_away.end())
+                .lineToSplineHeading(new Pose2d(-6, -40, Math.toRadians(90)))
+                .build();
+        /*
+        Trajectory return_to_position = drive.trajectoryBuilder(second_level.end())
                 .lineToSplineHeading(new Pose2d(-40, -60, Math.toRadians(180)))
                 .build();
-
-        //Pose2d newLastPose = move_away_from_wall.end().plus(new Pose2d(0, 0, ));
-        //Trajectory first_level = drive.trajectoryBuilder(newLastPose)
-                //.forward(10)
-                //.build();
-
+         */
         if (tfod != null) {
             tfod.activate();
 
@@ -90,14 +84,37 @@ public class RedAutonomous extends LinearOpMode {
         if (isStopRequested()) return;
 
         detectTeamShippingElement();
-        drive.followTrajectory(move_away_from_wall);
-        drive.followTrajectory(turn_to_position);
-        ElapsedTime elapsedTime = new ElapsedTime();
-        while (elapsedTime.milliseconds() <= 1500 && !isStopRequested()) {
-            intakeMotor.setPower(-1);
+        drive.followTrajectory(move_away);
+        if (TSM_Position == 1) {
+            drive.followTrajectory(first_level);
+            ElapsedTime elapsedTime = new ElapsedTime();
+            while (elapsedTime.milliseconds() <= 1500 && !isStopRequested()) {
+                intakeMotor.setPower(-1);
+            }
+            intakeMotor.setPower(0);
+        } else if (TSM_Position == 2) {
+            drive.followTrajectory(secondthird_level);
+            while (pivotMotor.getCurrentPosition() <= 620 && !isStopRequested()) {
+                pivotMotor.setPower(1);
+            }
+            pivotMotor.setPower(0);
+            ElapsedTime elapsedTime = new ElapsedTime();
+            while (elapsedTime.milliseconds() <= 1500 && !isStopRequested()) {
+                intakeMotor.setPower(-1);
+            }
+            intakeMotor.setPower(0);
+        } else {
+            drive.followTrajectory(secondthird_level);
+            while (pivotMotor.getCurrentPosition() <= 1100 && !isStopRequested()) {
+                pivotMotor.setPower(1);
+            }
+            pivotMotor.setPower(0);
+            ElapsedTime elapsedTime = new ElapsedTime();
+            while (elapsedTime.milliseconds() <= 1500 && !isStopRequested()) {
+                intakeMotor.setPower(-0.5);
+            }
+            intakeMotor.setPower(0);
         }
-        intakeMotor.setPower(0);
-        drive.followTrajectory(return_to_position);
 
         while (opModeIsActive() && !isStopRequested()) {
             Pose2d poseEstimate = drive.getPoseEstimate();
